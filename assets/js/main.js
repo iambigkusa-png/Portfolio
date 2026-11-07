@@ -1,88 +1,482 @@
-@import url("../../style.css");
+// Loading screen, theme controls, navigation, and motion-enhanced project carousel.
+(() => {
+  const body = document.body;
+  const storageKey = 'portfolio-theme';
 
-/* Loading interstitial */
-body.is-loading { overflow: hidden; }
-.loading-screen {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  overflow: hidden;
-  background: #111518;
-  color: var(--text, #edf1f2);
-  opacity: 1;
-  visibility: visible;
-  transition: opacity .55s ease, visibility .55s ease;
-}
-.loading-screen::before,
-.loading-screen::after { position: absolute; content: ""; pointer-events: none; }
-.loading-screen::before {
-  inset: 0;
-  background: linear-gradient(115deg, transparent 48%, rgba(98,210,208,.035) 49%, transparent 50%),
-              repeating-linear-gradient(0deg, transparent 0 5px, rgba(255,255,255,.018) 6px);
-}
-.loading-screen::after {
-  width: min(60vw, 560px);
-  aspect-ratio: 1;
-  border: 1px solid rgba(98,210,208,.13);
-  transform: rotate(45deg);
-  box-shadow: 0 0 0 28px rgba(98,210,208,.025), 0 0 0 56px rgba(98,210,208,.018);
-}
-body[data-theme="light"] .loading-screen {
-  background: #edf5fb;
-  color: var(--text);
-}
-body[data-theme="light"] .loading-screen::before { background: linear-gradient(115deg, transparent 48%, rgba(15,125,184,.055) 49%, transparent 50%), repeating-linear-gradient(0deg, transparent 0 5px, rgba(15,25,35,.025) 6px); }
-body[data-theme="light"] .loading-screen::after { border-color: rgba(15,125,184,.18); box-shadow: 0 0 0 28px rgba(15,125,184,.035), 0 0 0 56px rgba(15,125,184,.02); }
-.loading-screen.is-hidden { opacity: 0; visibility: hidden; }
-.loading-content { position: relative; z-index: 1; width: min(420px, 100%); }
-.loading-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 48px; color: var(--cyan, #62d2d0); font: 600 11px/1.5 var(--mono, monospace); letter-spacing: .18em; }
-.loading-mark { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid currentColor; font: 700 17px/1 var(--display, sans-serif); }
-.loading-kicker { color: var(--muted, #9aa5ad); font: 10px/1.5 var(--mono, monospace); letter-spacing: .2em; }
-.loading-title { margin: 8px 0 28px; font: 700 clamp(38px, 9vw, 58px)/.95 var(--display, sans-serif); letter-spacing: .025em; }
-.loading-title span { color: var(--cyan, #62d2d0); }
-.loading-progress-meta { display: flex; justify-content: space-between; margin-bottom: 9px; color: var(--muted, #9aa5ad); font: 9px/1.5 var(--mono, monospace); letter-spacing: .12em; }
-.loading-percent { color: var(--cyan, #62d2d0); }
-.loading-track { height: 2px; background: #30383c; }
-body[data-theme="light"] .loading-track { background: #d5dde8; }
-.loading-track span { display: block; width: 0; height: 100%; background: var(--cyan, #62d2d0); box-shadow: 0 0 12px rgba(98,210,208,.7); transition: width .18s ease; }
-.loading-skip { margin-top: 24px; padding: 8px 0; border: 0; background: none; color: var(--muted, #9aa5ad); cursor: pointer; font: 9px/1.5 var(--mono, monospace); letter-spacing: .14em; }
-.loading-skip:hover { color: var(--cyan, #62d2d0); }
+  try {
+    const savedTheme = localStorage.getItem(storageKey);
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+      body.dataset.theme = savedTheme;
+    }
+  } catch (error) {
+    body.dataset.theme = 'dark';
+  }
 
-/* Project carousel */
-.carousel-toolbar { display: flex; align-items: center; justify-content: flex-end; gap: 14px; margin: -4px 0 15px; }
-.carousel-count { min-width: 62px; color: var(--muted, #9aa5ad); text-align: center; font: 10px/1 var(--mono, monospace); letter-spacing: .1em; }
-.carousel-count strong { color: var(--text, #edf1f2); font-weight: 500; }
-.carousel-arrow { display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid var(--line, #3b434b); background: transparent; color: var(--text, #edf1f2); cursor: pointer; font-size: 19px; transition: background .2s ease, color .2s ease, border-color .2s ease, transform .2s ease; }
-.carousel-arrow:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--cyan, #62d2d0); background: var(--cyan, #62d2d0); color: #171a1e; }
-.carousel-arrow:disabled { opacity: .35; cursor: default; }
-.project-grid.is-carousel { display: flex; gap: 16px; overflow-x: auto; overflow-y: hidden; padding: 2px 2px 18px; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: thin; scrollbar-color: var(--cyan, #62d2d0) var(--panel, #22272d); }
-.project-grid.is-carousel .project-card { flex: 0 0 calc((100% - 16px) / 2); min-width: 0; scroll-snap-align: start; }
-.project-grid.is-carousel .project-card[hidden] { display: none !important; }
-.project-card { transform: translateZ(0); transition: transform .3s cubic-bezier(.2,.7,.2,1), border-color .3s ease, box-shadow .3s ease; }
-.project-card:hover { z-index: 1; transform: translateY(-6px); border-color: rgba(98,210,208,.7); box-shadow: 0 16px 38px rgba(0,0,0,.24), 0 0 22px rgba(98,210,208,.08); }
-.project-visual img { transition: transform .65s cubic-bezier(.2,.7,.2,1), filter .4s ease; }
-.project-card:hover .project-visual img { transform: scale(1.055); filter: saturate(1.12); }
-.project-card .project-class { transition: background .25s ease, color .25s ease; }
-.project-card:hover .project-class { background: var(--cyan, #62d2d0); color: #171a1e; }
-.button { position: relative; isolation: isolate; overflow: hidden; }
-.button::before { position: absolute; z-index: -1; inset: 0; content: ""; background: rgba(255,255,255,.12); transform: translateX(-105%); transition: transform .3s ease; }
-.button:hover::before { transform: translateX(0); }
-.skill-items span { transition: color .2s ease, border-color .2s ease, background .2s ease, transform .2s ease; }
-.skill-items span:hover { transform: translateY(-2px); border-color: var(--cyan, #62d2d0); background: rgba(98,210,208,.08); color: var(--cyan, #62d2d0); }
-.text-link, .project-links a, .social-links a { transition: color .2s ease, padding .2s ease; }
-.project-links a:hover, .social-links a:hover { padding-left: 4px; }
-.theme-toggle {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 38px; height: 38px; border: 1px solid var(--line, #3b434b);
-  background: rgba(255,255,255,.03); color: var(--text, #edf1f2); cursor: pointer;
-  font-size: 16px; line-height: 1; margin-left: 12px; transition: transform .2s ease, border-color .2s ease, color .2s ease, background .2s ease;
+  if (!body.dataset.theme) body.dataset.theme = 'dark';
+
+  const header = document.querySelector('.topbar');
+  const nav = document.querySelector('.nav');
+  if (header && !header.querySelector('.theme-toggle')) {
+    const themeButton = document.createElement('button');
+    themeButton.type = 'button';
+    themeButton.className = 'theme-toggle';
+    themeButton.setAttribute('aria-label', body.dataset.theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme');
+    themeButton.title = themeButton.getAttribute('aria-label');
+    themeButton.innerHTML = body.dataset.theme === 'light' ? '☾' : '☼';
+    themeButton.setAttribute('aria-pressed', String(body.dataset.theme === 'light'));
+
+    themeButton.addEventListener('click', () => {
+      const isLight = body.dataset.theme !== 'light';
+      body.dataset.theme = isLight ? 'light' : 'dark';
+      themeButton.setAttribute('aria-pressed', String(isLight));
+      themeButton.setAttribute('aria-label', isLight ? 'Switch to dark theme' : 'Switch to light theme');
+      themeButton.title = themeButton.getAttribute('aria-label');
+      themeButton.innerHTML = isLight ? '☾' : '☼';
+
+      try {
+        localStorage.setItem(storageKey, isLight ? 'light' : 'dark');
+      } catch (error) {
+        // Ignore storage failures and keep the theme in memory for the page session.
+      }
+    });
+
+    header.insertBefore(themeButton, nav || null);
+  }
+
+  // Animated loading overlay.
+  const loader = document.createElement('div');
+  loader.className = 'loading-screen';
+  loader.setAttribute('role', 'status');
+  loader.setAttribute('aria-label', 'Loading portfolio');
+  loader.innerHTML = `
+    <div class="loading-content">
+      <div class="loading-brand"><span class="loading-mark" aria-hidden="true">P</span><span>PERSONAL ARCHIVE / SYSTEM BOOT</span></div>
+      <div class="loading-kicker">WELCOME TO THE OPERATIONS BASE</div>
+      <div class="loading-title">INITIALIZING<span>.</span></div>
+      <div class="loading-progress-meta"><span>LOADING PROFILE DATA</span><span class="loading-percent">00%</span></div>
+      <div class="loading-track" aria-hidden="true"><span></span></div>
+      <button class="loading-skip" type="button">SKIP INTRO ↗</button>
+    </div>`;
+
+  body.classList.add('is-loading');
+  body.setAttribute('aria-busy', 'true');
+  body.append(loader);
+
+  const bar = loader.querySelector('.loading-track span');
+  const percent = loader.querySelector('.loading-percent');
+  const startedAt = performance.now();
+  let progress = 0;
+  let finished = false;
+
+  const progressTimer = window.setInterval(() => {
+    if (finished) return;
+    progress = Math.min(93, progress + Math.max(1, Math.ceil((93 - progress) / 14)));
+    bar.style.width = `${progress}%`;
+    percent.textContent = `${String(progress).padStart(2, '0')}%`;
+  }, 45);
+
+  function finishLoading() {
+    if (finished) return;
+    finished = true;
+    window.clearInterval(progressTimer);
+    bar.style.width = '100%';
+    percent.textContent = '100%';
+    const wait = Math.max(0, 550 - (performance.now() - startedAt));
+    window.setTimeout(() => {
+      loader.classList.add('is-hidden');
+      body.classList.remove('is-loading');
+      body.removeAttribute('aria-busy');
+      window.setTimeout(() => loader.remove(), 600);
+    }, wait);
+  }
+
+  loader.querySelector('.loading-skip').addEventListener('click', finishLoading);
+  if (document.readyState === 'complete') finishLoading();
+  else window.addEventListener('load', finishLoading, { once: true });
+  window.setTimeout(finishLoading, 2400);
+})();
+
+const toggle = document.querySelector('.menu-toggle');
+const navMain = document.querySelector('.nav');
+if (toggle && navMain) {
+  toggle.addEventListener('click', () => {
+    const isOpen = navMain.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', String(isOpen));
+  });
 }
-.theme-toggle:hover { transform: translateY(-1px); border-color: var(--cyan, #62d2d0); color: var(--cyan, #62d2d0); }
-body[data-theme="light"] .theme-toggle { background: rgba(15,125,184,.06); }
-@media (max-width: 700px) { .project-grid.is-carousel .project-card { flex-basis: min(88%, 420px); } }
-@media (prefers-reduced-motion: reduce) {
-  .loading-screen, .loading-track span, .carousel-arrow, .project-card, .project-visual img, .button::before, .skill-items span { transition-duration: .01ms !important; scroll-behavior: auto !important; }
+
+const tabButtons = document.querySelectorAll('[data-tab]');
+const tabPanels = document.querySelectorAll('[data-tab-panel]');
+function activateTab(tabName) {
+  const target = document.querySelector(`[data-tab-panel="${tabName}"]`);
+  if (!target) return;
+
+  tabPanels.forEach(panel => panel.classList.toggle('is-active', panel === target));
+  tabButtons.forEach(button => {
+    const active = button.dataset.tab === tabName;
+    button.classList.toggle('active', active);
+    if (button.classList.contains('tab-link')) {
+      button.setAttribute('aria-current', active ? 'page' : 'false');
+    }
+  });
+
+  if (navMain) navMain.classList.remove('open');
+  if (toggle) toggle.setAttribute('aria-expanded', 'false');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  history.replaceState(null, '', `#${tabName}`);
 }
+
+tabButtons.forEach(button => {
+  button.addEventListener('click', () => activateTab(button.dataset.tab));
+});
+
+const initialTab = location.hash.replace('#', '');
+if (initialTab && document.querySelector(`[data-tab-panel="${initialTab}"]`)) {
+  activateTab(initialTab);
+}
+
+const filters = document.querySelectorAll('.filter');
+const cards = [...document.querySelectorAll('.project-card')];
+const track = document.querySelector('.project-grid');
+let updateCarousel = () => {};
+
+filters.forEach(button => {
+  button.addEventListener('click', () => {
+    filters.forEach(item => item.classList.remove('active'));
+    button.classList.add('active');
+    const category = button.dataset.filter;
+    cards.forEach(card => {
+      card.hidden = category !== 'all' && card.dataset.category !== category;
+    });
+    if (track) track.scrollTo({ left: 0, behavior: 'smooth' });
+    updateCarousel();
+  });
+});
+
+if (track && cards.length) {
+  track.classList.add('is-carousel');
+  track.setAttribute('role', 'region');
+  track.setAttribute('aria-label', 'Selected project carousel');
+  track.setAttribute('tabindex', '0');
+
+  const toolbar = document.createElement('div');
+  toolbar.className = 'carousel-toolbar';
+  toolbar.setAttribute('aria-label', 'Project carousel controls');
+  toolbar.innerHTML = `
+    <span class="carousel-count" aria-live="polite"></span>
+    <button class="carousel-arrow carousel-prev" type="button" aria-label="Previous project">←</button>
+    <button class="carousel-arrow carousel-next" type="button" aria-label="Next project">→</button>
+    <button class="carousel-arrow carousel-play" type="button" aria-label="Pause automatic slideshow" aria-pressed="false">Ⅱ</button>`;
+
+  track.parentNode.insertBefore(toolbar, track);
+
+  const previous = toolbar.querySelector('.carousel-prev');
+  const next = toolbar.querySelector('.carousel-next');
+  const playPause = toolbar.querySelector('.carousel-play');
+  const count = toolbar.querySelector('.carousel-count');
+  const visibleCards = () => cards.filter(card => !card.hidden);
+  let currentIndex = 0;
+  let timer = null;
+  let paused = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let pointerInside = false;
+  let focusInside = false;
+
+  function cardOffset(card) {
+    return card.offsetLeft - track.offsetLeft;
+  }
+
+  function nearestIndex() {
+    const visible = visibleCards();
+    if (!visible.length) return 0;
+    let nearest = 0;
+    let smallestDistance = Infinity;
+    visible.forEach((card, index) => {
+      const distance = Math.abs(cardOffset(card) - track.scrollLeft);
+      if (distance < smallestDistance) {
+        smallestDistance = distance;
+        nearest = index;
+      }
+    });
+    return nearest;
+  }
+
+  function renderCarousel() {
+    const visible = visibleCards();
+    if (!visible.length) {
+      count.textContent = '00 / 00';
+      previous.disabled = true;
+      next.disabled = true;
+      playPause.disabled = true;
+      toolbar.hidden = true;
+      return;
+    }
+
+    currentIndex = Math.min(nearestIndex(), visible.length - 1);
+    count.textContent = `${String(currentIndex + 1).padStart(2, '0')} / ${String(visible.length).padStart(2, '0')}`;
+    previous.disabled = visible.length < 2;
+    next.disabled = visible.length < 2;
+    playPause.disabled = visible.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    toolbar.hidden = visible.length < 2;
+    playPause.setAttribute('aria-pressed', String(paused));
+    playPause.setAttribute('aria-label', paused ? 'Play automatic slideshow' : 'Pause automatic slideshow');
+    playPause.title = paused ? 'Play automatic slideshow' : 'Pause automatic slideshow';
+    playPause.textContent = paused ? '▶' : 'Ⅱ';
+  }
+
+  updateCarousel = renderCarousel;
+
+  function goTo(index, behavior = 'smooth') {
+    const visible = visibleCards();
+    if (visible.length < 2) return;
+    const wrappedIndex = (index + visible.length) % visible.length;
+    track.scrollTo({ left: cardOffset(visible[wrappedIndex]), behavior });
+  }
+
+  function stopTimer() {
+    if (timer !== null) {
+      window.clearInterval(timer);
+      timer = null;
+    }
+  }
+
+  function startTimer() {
+    stopTimer();
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (paused || pointerInside || focusInside || document.hidden || visibleCards().length < 2 || reducedMotion) return;
+    timer = window.setInterval(() => {
+      goTo(nearestIndex() + 1);
+    }, 5200);
+  }
+
+  previous.addEventListener('click', () => goTo(nearestIndex() - 1));
+  next.addEventListener('click', () => goTo(nearestIndex() + 1));
+  playPause.addEventListener('click', () => {
+    paused = !paused;
+    renderCarousel();
+    startTimer();
+  });
+
+  track.addEventListener('scroll', renderCarousel, { passive: true });
+  track.addEventListener('keydown', event => {
+    if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      goTo(nearestIndex() + 1);
+    }
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      goTo(nearestIndex() - 1);
+    }
+  });
+
+  track.addEventListener('mouseenter', () => {
+    pointerInside = true;
+    stopTimer();
+  });
+  track.addEventListener('mouseleave', () => {
+    pointerInside = false;
+    startTimer();
+  });
+  toolbar.addEventListener('mouseenter', () => {
+    pointerInside = true;
+    stopTimer();
+  });
+  toolbar.addEventListener('mouseleave', () => {
+    pointerInside = false;
+    startTimer();
+  });
+
+  track.addEventListener('focusin', () => {
+    focusInside = true;
+    stopTimer();
+  });
+  track.addEventListener('focusout', event => {
+    if (!track.contains(event.relatedTarget)) {
+      focusInside = false;
+      startTimer();
+    }
+  });
+
+  toolbar.addEventListener('focusin', () => {
+    focusInside = true;
+    stopTimer();
+  });
+  toolbar.addEventListener('focusout', event => {
+    if (!toolbar.contains(event.relatedTarget)) {
+      focusInside = false;
+      startTimer();
+    }
+  });
+
+  document.addEventListener('visibilitychange', startTimer);
+  window.addEventListener('resize', renderCarousel);
+
+  const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (typeof motionQuery.addEventListener === 'function') {
+    motionQuery.addEventListener('change', () => {
+      paused = motionQuery.matches;
+      renderCarousel();
+      startTimer();
+    });
+  }
+
+  renderCarousel();
+  startTimer();
+}
+
+const hero = document.querySelector('.hero');
+const heroGrid = hero && hero.querySelector('.hero-grid');
+const heroSide = hero && hero.querySelector('.hero-side');
+const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+if (hero && heroGrid && !motionPreference.matches && window.matchMedia('(pointer: fine)').matches) {
+  let pointerX = 0;
+  let pointerY = 0;
+  let rafId = null;
+
+  function paintParallax() {
+    rafId = null;
+    const scrollFactor = Math.min(window.scrollY, window.innerHeight) / Math.max(window.innerHeight, 1);
+    heroGrid.style.setProperty('--parallax-x', `${pointerX * 8}px`);
+    heroGrid.style.setProperty('--parallax-y', `${pointerY * 7 - scrollFactor * 12}px`);
+    if (heroSide) {
+      heroSide.style.setProperty('--parallax-y', `${pointerY * -5 + scrollFactor * 18}px`);
+    }
+  }
+
+  function queueParallax() {
+    if (rafId === null) {
+      rafId = window.requestAnimationFrame(paintParallax);
+    }
+  }
+
+  hero.addEventListener('pointermove', event => {
+    const bounds = hero.getBoundingClientRect();
+    pointerX = (event.clientX - bounds.left) / bounds.width - 0.5;
+    pointerY = (event.clientY - bounds.top) / bounds.height - 0.5;
+    queueParallax();
+  }, { passive: true });
+
+  hero.addEventListener('pointerleave', () => {
+    pointerX = 0;
+    pointerY = 0;
+    queueParallax();
+  });
+
+  window.addEventListener('scroll', queueParallax, { passive: true });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
